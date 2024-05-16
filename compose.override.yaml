@@ -1,0 +1,19 @@
+# Development environment override
+services:
+  php:
+    build:
+      context: .
+      target: php_dev
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ./:/app
+      - ./docker/conf.d/app.dev.ini:/usr/local/etc/php/conf.d/app.dev.ini:ro
+      - '/etc/timezone:/etc/timezone:ro'
+      - '/etc/localtime:/etc/localtime:ro'
+    environment:
+      # See https://xdebug.org/docs/all_settings#mode
+      XDEBUG_MODE: "${XDEBUG_MODE:-debug}"
+    extra_hosts:
+      # Ensure that host.docker.internal is correctly defined on Linux
+      - host.docker.internal:host-gateway
+    tty: true
