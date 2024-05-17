@@ -4,17 +4,18 @@ namespace Lodestone\Parser;
 
 use Lodestone\Entity\Character\CharacterSimple;
 use Lodestone\Entity\ListView\ListView;
+use Lodestone\Enum\LocaleEnum;
+use LodestoneUtils\Translator;
 use Rct567\DomQuery\DomQuery;
 
 trait ListTrait
 {
-    /** @var ListView */
-    protected $list;
+    protected ListView $list;
 
     /**
      * Initialize a list view
      */
-    protected function setList()
+    protected function setList(string $locale = LocaleEnum::EN->value): void
     {
         $this->list = new ListView();
 
@@ -23,7 +24,12 @@ trait ListTrait
         }
 
         $data = $this->dom->find('.btn__pager__current')->text();
-        [$current, $total] = explode(' of ', $data);
+
+        if (str_contains($data, ' / ')) {
+            [$current, $total] = explode(' / ', $data);
+        } else {
+            [$current, $total] = explode(Translator::translate($locale, ' of '), $data);
+        }
 
         $this->list->Pagination->Page = filter_var($current, FILTER_SANITIZE_NUMBER_INT);
         $this->list->Pagination->PageTotal = filter_var($total, FILTER_SANITIZE_NUMBER_INT);
@@ -36,7 +42,7 @@ trait ListTrait
         $this->list->Pagination->setNextPrevious();
     }
 
-    public function handleCharacterList()
+    public function handleCharacterList(): void
     {
         /** @var DomQuery $node */
         foreach ($this->dom->find('.ldst__window div.entry') as $node) {

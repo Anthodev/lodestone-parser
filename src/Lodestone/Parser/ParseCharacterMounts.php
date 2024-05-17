@@ -15,10 +15,10 @@ class ParseCharacterMounts extends ParseAbstract implements Parser
     /**
      * @throws LodestonePrivateException
      */
-    public function handle(string $html)
+    public function handle(string $htmlContent)
     {
         // set dom
-        $this->setDom($html, true);
+        $this->setDom($htmlContent, true);
         $mounts = [];
         foreach ($this->dom->find('.mount__list__item') as $li) {
             $mount       = new Minion();

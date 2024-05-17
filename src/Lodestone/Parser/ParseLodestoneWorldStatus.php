@@ -8,20 +8,20 @@ class ParseLodestoneWorldStatus extends ParseAbstract implements Parser
 {
     use HelpersTrait;
 
-    public function handle(string $html)
+    public function handle(string $htmlContent)
     {
         // set dom
-        $this->setDom($html);
+        $this->setDom($htmlContent);
 
         /** @var DomQuery $node */
         $arr = [];
         foreach ($this->dom->find('.item-list') as $node) {
             $status = trim($node->find('.world-list__status_icon i')->attr('data-tooltip'));
             $isOnline = strtolower($status) == 'online';
-            
+
             $category = trim($node->find('.world-list__world_category')->text());
             $isCongested = strtolower($category) == 'congested';
-            
+
             $arr[] = [
                 'Name'        => trim($node->find('.world-list__world_name')->text()),
                 'Status'      => $status,

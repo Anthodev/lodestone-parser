@@ -2,6 +2,7 @@
 
 namespace Lodestone\Tests;
 
+use Lodestone\Enum\LocaleEnum;
 use PHPUnit\Framework\TestCase;
 
 final class BasicTest extends TestCase
@@ -10,9 +11,10 @@ final class BasicTest extends TestCase
     {
         // create api instance
         $api = new \Lodestone\Api();
+        $locale = LocaleEnum::EN->value;
 
         // Easy adjusting of tests
-        $user = '9575452';
+        $userId = 9575452;
         $expectedUserName = 'Arcane Disgea';
         $fc = '9232379236109629819';
         $expectedfc = 'Hell On Aura';
@@ -20,18 +22,18 @@ final class BasicTest extends TestCase
         $pvp = '59665d98bf81ff58db63305b538cd69a6c64d578';
         $bio = "This is a test of the emergency alert system.\nAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH\n\nECU125614VC";
 
-        $character = $api->character()->get($user);
+        $character = $api->character()->get($userId, $locale);
         self::assertSame($expectedUserName, $character->Name);
         self::assertSame($bio, $character->Bio);
 
-        self::assertNotEmpty($api->character()->friends($user));
-        self::assertNotEmpty($api->character()->following($user));
-        // self::assertTrue($api->character()->achievements($user)->PointsTotal > 0); AHHHHHHHHHHHHHHHH
-        // self::assertNotEmpty($api->getCharacterAchievementsFull($user)->Achievements); This may not be relevant anymore
-        self::assertSame($expectedfc, $api->FreeCompany()->get($fc)->Name);
+        self::assertNotEmpty($api->character()->friends($userId));
+        self::assertNotEmpty($api->character()->following($userId));
+        // self::assertTrue($api->character()->achievements($userId)->PointsTotal > 0); AHHHHHHHHHHHHHHHH
+        // self::assertNotEmpty($api->getCharacterAchievementsFull($userId)->Achievements); This may not be relevant anymore
+        self::assertSame($expectedfc, $api->FreeCompany()->get($fc, $locale)->Name);
         // self::assertSame($api->getFreeCompanyFull('9233927348481473031')->Profile->ID, '9233927348481473031'); This may not be relevant anymore
         self::assertNotEmpty($api->FreeCompany()->members($fc)->Results);
-        self::assertNotEmpty($api->Linkshell()->get($ls)->Results);
+        self::assertNotEmpty($api->Linkshell()->get(id: $ls, locale: $locale)->Results);
         self::assertNotEmpty($api->PvPTeam()->get($pvp)->Results);
         self::assertNotEmpty($api->Character()->search($expectedUserName)->Results);
         self::assertNotEmpty($api->FreeCompany()->search('a')->Results);

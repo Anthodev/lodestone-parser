@@ -15,10 +15,10 @@ class ParseCharacterMinions extends ParseAbstract implements Parser
     /**
      * @throws LodestonePrivateException
      */
-    public function handle(string $html)
+    public function handle(string $htmlContent)
     {
         // set dom
-        $this->setDom($html, true);
+        $this->setDom($htmlContent, true);
         $minions = [];
         foreach ($this->dom->find('.minion__list__item') as $li) {
             $minion       = new Minion();

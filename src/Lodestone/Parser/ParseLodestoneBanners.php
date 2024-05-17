@@ -8,10 +8,10 @@ class ParseLodestoneBanners extends ParseAbstract implements Parser
 {
     use HelpersTrait;
 
-    public function handle(string $html)
+    public function handle(string $htmlContent)
     {
         // set dom
-        $this->setDom($html);
+        $this->setDom($htmlContent);
 
         /** @var DomQuery $node */
         $arr = [];

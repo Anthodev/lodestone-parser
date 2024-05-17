@@ -1,5 +1,19 @@
 .idea
 vendor
+.phpunit.cache/
 
 composer.lock
+
+export/achievements/*
+export/banners/*
+export/character/*
+export/characterfull/*
+export/cwlinkshell/*
+export/freecompany/*
+export/leaderboards/*
+export/linkshell/*
+export/pvpteam/*
+
+!**.gitkeep
+
 test\.json
