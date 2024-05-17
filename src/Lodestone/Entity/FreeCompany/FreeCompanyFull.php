@@ -7,11 +7,9 @@ use Lodestone\Entity\ListView\ListView;
 
 class FreeCompanyFull extends AbstractEntity
 {
-    public $ID;
-    /** @var FreeCompany */
-    public $Profile;
-    /** @var array */
-    public $Members = [];
+    public int $ID;
+    public FreeCompany $Profile;
+    public array $Members = [];
 
     public function addMembers(ListView $list)
     {

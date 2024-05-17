@@ -2,8 +2,9 @@
 
 namespace Lodestone\Parser;
 
-use Lodestone\Entity\Character\CharacterSimple;
 use Lodestone\Entity\FreeCompany\FreeCompanySimple;
+use Lodestone\Entity\LodestoneDataInterface;
+use Lodestone\Enum\LocaleEnum;
 use Rct567\DomQuery\DomQuery;
 
 class ParsePvPTeamSearch extends ParseAbstract implements Parser
@@ -11,13 +12,15 @@ class ParsePvPTeamSearch extends ParseAbstract implements Parser
     use HelpersTrait;
     use ListTrait;
 
-    public function handle(string $html)
-    {
+    public function handle(
+        string $htmlContent,
+        string $locale = LocaleEnum::EN->value,
+    ): LodestoneDataInterface {
         // set dom
-        $this->setDom($html);
+        $this->setDom($htmlContent);
 
         // build list
-        $this->setList();
+        $this->setList($locale);
 
         // parse list
         /** @var DomQuery $node */

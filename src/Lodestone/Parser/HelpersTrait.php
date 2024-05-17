@@ -29,12 +29,16 @@ trait HelpersTrait
         $timestamp = trim(explode(',', $timestamp)[0]);
         return $timestamp ? $timestamp : null;
     }
-    
+
     public function getServerAndDc($line)
     {
         $parts = explode(' ', $line, 2);
         $server = trim($parts[0]);
-        $dc = trim($parts[1] ?? '', '[]');
+        $dc = trim($parts[1] ?? '');
+
+        if ('' !== $dc) {
+            $dc = str_replace(['[', ']'], '', $dc);
+        }
 
         return [
             $server,

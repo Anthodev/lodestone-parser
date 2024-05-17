@@ -7,11 +7,14 @@
  */
 
 // composer auto loader
+use Lodestone\Enum\LocaleEnum;
+
 require __DIR__ . '/vendor/autoload.php';
 
 $api = new \Lodestone\Api();
+$exporter = new \LodestoneUtils\Exporter();
 
-print_r($argv);
+//print_r($argv);
 
 if ($argc < 2) {
     print("No arguments provided.\n");
@@ -22,6 +25,22 @@ if ($argc < 2) {
 array_shift($argv);
 $cliCommandType = $argv[0];
 
+$locale = LocaleEnum::EN->value;
+
+foreach ($argv as $key => $arg) {
+    if ($arg === "-l") {
+        if (
+            !isset($argv[$key + 1])
+            || !LocaleEnum::isValid(strtolower($argv[$key + 1]))
+        ) {
+            print_r("INVALID ARGUMENT: Expected country identifier or wrong country identifier\n");
+            exit(1);
+        }
+        $locale = strtolower($argv[$key + 1]);
+        break;
+    }
+}
+
 switch ($cliCommandType) {
     case "character":
         if (!isset($argv[1])) {
@@ -29,11 +48,23 @@ switch ($cliCommandType) {
             break;
         }
         print_r("Parsing character of {$argv[1]}...\n");
-        $results = $api->character()->get($argv[1]);
-        if (isset($argv[2]) == "-file") {
-            $file = fopen("{$argv[3]}.json", 'w');
-            fwrite($file, json_encode($results));
-            fclose($file);
+        $results = $api->character()->get($argv[1], $locale);
+        if (isset($argv[2]) == "-f") {
+            $exporter->exportToFile($argv[0], $argv[3], $results);
+            break;
+        }
+        print_r($results);
+        break;
+
+    case "characterfull":
+        if (!isset($argv[1])) {
+            print_r("INVALID ARGUMENT: Expected Character ID\n");
+            break;
+        }
+        print_r("Parsing character of {$argv[1]}...\n");
+        $results = $api->character()->getFull($argv[1], $locale, true);
+        if (isset($argv[2]) == "-f") {
+            $exporter->exportToFile($argv[0], $argv[3], $results);
             break;
         }
         print_r($results);
@@ -45,11 +76,9 @@ switch ($cliCommandType) {
             break;
         }
         print_r("Parsing freecompany of {$argv[1]}...\n");
-        $results = $api->freecompany()->get($argv[1]);
-        if (isset($argv[2]) == "-file") {
-            $file = fopen("{$argv[3]}.json", 'w');
-            fwrite($file, json_encode($results));
-            fclose($file);
+        $results = $api->freecompany()->get($argv[1], $locale);
+        if (isset($argv[2]) == "-f") {
+            $exporter->exportToFile($argv[0], $argv[3], $results);
             break;
         }
         print_r($results);
@@ -61,11 +90,9 @@ switch ($cliCommandType) {
             break;
         }
         print_r("Parsing pvp team of {$argv[1]}...\n");
-        $results = $api->pvpteam()->get($argv[1]);
-        if (isset($argv[2]) == "-file") {
-            $file = fopen("{$argv[3]}.json", 'w');
-            fwrite($file, json_encode($results));
-            fclose($file);
+        $results = $api->pvpteam()->get($argv[1], $locale);
+        if (isset($argv[2]) == "-f") {
+            $exporter->exportToFile($argv[0], $argv[3], $results);
             break;
         }
         print_r($results);
@@ -77,11 +104,9 @@ switch ($cliCommandType) {
             break;
         }
         print_r("Parsing linkshell of {$argv[1]}...\n");
-        $results = $api->linkshell()->get($argv[1])->Results;
-        if (isset($argv[2]) == "-file") {
-            $file = fopen("{$argv[3]}.json", 'w');
-            fwrite($file, json_encode($results));
-            fclose($file);
+        $results = $api->linkshell()->get(id: $argv[1], locale: $locale)->Results;
+        if (isset($argv[2]) == "-f") {
+            $exporter->exportToFile($argv[0], $argv[3], $results);
             break;
         }
         print_r($results);
@@ -93,11 +118,9 @@ switch ($cliCommandType) {
             break;
         }
         print_r("Parsing linkshell of {$argv[1]}...\n");
-        $results = $api->linkshell()->getCrossWorld($argv[1])->Results;
-        if (isset($argv[2]) == "-file") {
-            $file = fopen("{$argv[3]}.json", 'w');
-            fwrite($file, json_encode($results));
-            fclose($file);
+        $results = $api->linkshell()->getCrossWorld(id: $argv[1], locale: $locale)->Results;
+        if (isset($argv[2]) == "-f") {
+            $exporter->exportToFile($argv[0], $argv[3], $results);
             break;
         }
         print_r($results);
@@ -109,11 +132,9 @@ switch ($cliCommandType) {
             break;
         }
         print_r("Parsing achievements of {$argv[1]}...\n");
-        $results = $api->character()->achievements($argv[1]);
-        if (isset($argv[2]) == "-file") {
-            $file = fopen("{$argv[3]}.json", 'w');
-            fwrite($file, json_encode($results));
-            fclose($file);
+        $results = $api->character()->achievements(id: $argv[1], locale: $locale);
+        if (isset($argv[2]) == "-f") {
+            $exporter->exportToFile($argv[0], $argv[3], $results);
             break;
         }
         print_r($results);
@@ -121,10 +142,8 @@ switch ($cliCommandType) {
 
     case "banners":
         $results = $api->lodestone()->banners();
-        if (isset($argv[1]) == "-file") {
-            $file = fopen("{$argv[2]}.json", 'w');
-            fwrite($file, json_encode($results));
-            fclose($file);
+        if (isset($argv[1]) == "-f") {
+            $exporter->exportToFile($argv[0], $argv[2], $results);
             break;
         }
         print_r($results);
@@ -135,10 +154,8 @@ switch ($cliCommandType) {
         switch ($argv[1]) {
             case "feast":
                 $results = $api->leaderboards()->feast();
-                if (isset($argv[2]) == "-file") {
-                    $file = fopen("{$argv[3]}.json", 'w');
-                    fwrite($file, json_encode($results));
-                    fclose($file);
+                if (isset($argv[2]) == "-f") {
+                    $exporter->exportToFile($argv[0], $argv[3], $results);
                     break;
                 }
                 print_r($results);
@@ -146,10 +163,8 @@ switch ($cliCommandType) {
 
             case "potd":
                 $results = $api->leaderboards()->ddPalaceOfTheDead();
-                if (isset($argv[2]) == "-file") {
-                    $file = fopen("{$argv[3]}.json", 'w');
-                    fwrite($file, json_encode($results));
-                    fclose($file);
+                if (isset($argv[2]) == "-f") {
+                    $exporter->exportToFile($argv[0], $argv[3], $results);
                     break;
                 }
                 print_r($results);
@@ -157,10 +172,8 @@ switch ($cliCommandType) {
 
             case "hoh":
                 $results = $api->leaderboards()->ddHeavenOnHigh();
-                if (isset($argv[2]) == "-file") {
-                    $file = fopen("{$argv[3]}.json", 'w');
-                    fwrite($file, json_encode($results));
-                    fclose($file);
+                if (isset($argv[2]) == "-f") {
+                    $exporter->exportToFile($argv[0], $argv[3], $results);
                     break;
                 }
                 print_r($results);

@@ -6,9 +6,9 @@ use Lodestone\Entity\AbstractEntity;
 
 class Achievement extends AbstractEntity
 {
-    public $ID;
-    public $Name;
-    public $Icon;
-    public $Points = 0;
-    public $ObtainedTimestamp;
+    public int $ID;
+    public string $Name;
+    public string $Icon;
+    public int $Points = 0;
+    public int $ObtainedTimestamp;
 }

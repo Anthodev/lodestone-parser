@@ -3,28 +3,29 @@
 namespace Lodestone\Entity\FreeCompany;
 
 use Lodestone\Entity\AbstractEntity;
+use Lodestone\Entity\LodestoneDataInterface;
 
-class FreeCompany extends AbstractEntity
+class FreeCompany extends AbstractEntity implements LodestoneDataInterface
 {
-    public $ID;
-    public $Crest = [];
-    public $GrandCompany;
-    public $Name;
-    public $Server;
-    public $DC;
-    public $Tag;
-    public $Formed;
-    public $ActiveMemberCount;
-    public $Rank;
-    public $Ranking;
-    public $Slogan;
-    public $Estate;
-    public $Reputation = [];
+    public int $ID;
+    public array $Crest = [];
+    public string $GrandCompany;
+    public string $Name;
+    public string $Server;
+    public string $DC;
+    public string $Tag;
+    public int $Formed;
+    public int $ActiveMemberCount;
+    public int $Rank;
+    public array $Ranking;
+    public string $Slogan;
+    public array $Estate;
+    public array $Reputation = [];
     public $Active;
     public $Recruitment;
-    public $Focus = [];
-    public $Seeking = [];
-    public $ParseDate;
+    public array $Focus = [];
+    public array $Seeking = [];
+    public int $ParseDate;
 
     public function __construct()
     {

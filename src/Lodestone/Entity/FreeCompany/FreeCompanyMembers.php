@@ -6,8 +6,8 @@ use Lodestone\Entity\AbstractEntity;
 
 class FreeCompanyMembers extends AbstractEntity
 {
-    public $ID;
-    public $ParseDate;
+    public int $ID;
+    public int $ParseDate;
 
     public function __construct()
     {

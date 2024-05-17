@@ -3,11 +3,13 @@
 namespace Lodestone\Entity\Character;
 
 use Lodestone\Entity\AbstractEntity;
+use Lodestone\Entity\LodestoneDataInterface;
 
-class Achievements extends AbstractEntity
+class Achievements extends AbstractEntity implements LodestoneDataInterface
 {
-    public $Achievements   = [];
-    public $ParseDate;
+    /** @var Achievement[] */
+    public array $Achievements = [];
+    public int $ParseDate;
 
     public function __construct()
     {

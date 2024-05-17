@@ -6,8 +6,8 @@ use Lodestone\Entity\AbstractEntity;
 
 class FreeCompanySimple extends AbstractEntity
 {
-    public $ID;
-    public $Name;
-    public $Server;
-    public $Crest = [];
+    public string $ID;
+    public string $Name;
+    public string $Server;
+    public array $Crest = [];
 }

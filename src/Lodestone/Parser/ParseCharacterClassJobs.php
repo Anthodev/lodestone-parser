@@ -5,8 +5,10 @@ namespace Lodestone\Parser;
 use Lodestone\Entity\Character\ClassJob;
 use Lodestone\Entity\Character\ClassJobBozjan;
 use Lodestone\Entity\Character\ClassJobEureka;
+use Lodestone\Enum\LocaleEnum;
 use Lodestone\Exceptions\LodestonePrivateException;
 use Lodestone\Game\ClassJobs;
+use LodestoneUtils\Translator;
 use Rct567\DomQuery\DomQuery;
 
 class ParseCharacterClassJobs extends ParseAbstract implements Parser
@@ -14,15 +16,17 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
     use HelpersTrait;
 
     /**
-     * @throws LodestonePrivateException
+     * @return array<string, mixed>
      */
-    public function handle(string $html)
-    {
+    public function handle(
+        string $htmlContent,
+        string $locale = LocaleEnum::EN->value,
+    ): array {
         // set dom
-        $this->setDom($html);
+        $this->setDom($htmlContent);
 
         $classjobs = [];
-        
+
         // loop through roles
         /** @var DomQuery $li */
         foreach ($this->dom->find('.character__content')->find('li') as $li)
@@ -30,7 +34,7 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
             // class name
             $name   = trim($li->find('.character__job__name')->text());
             $master = trim($li->find('.character__job__name--meister')->text());
-            $name   = str_ireplace('(Limited Job)', null, $name);
+            $name   = str_ireplace(Translator::translate($locale, 'Limited Job'), null, $name);
             $name   = $name ?: $master;
 
             if (empty($name)) {
@@ -38,17 +42,17 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
             }
 
             // get game data ids
-            $gd = ClassJobs::findGameData($name);
+            $gd = ClassJobs::findGameData($name, $locale);
 
             // build role
             $role          = new ClassJob();
             $role->Name    = $gd->Name;
             $role->ClassID = $gd->ClassID;
             $role->JobID   = $gd->JobID;
-            
+
             // Handle the unlock state based on the tooltip name, the 1st "Name" will be Job or Class if no Job unlocked.
             $unlockedState = trim(explode('/', $li->find('.character__job__name')->attr('data-tooltip'))[0]);
-            
+
             $role->UnlockedState = [
                 'Name' => $unlockedState,
                 'ID' => ClassJobs::findRoleIdFromName($unlockedState)
@@ -56,7 +60,7 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
 
             // level
             $level = trim($li->find('.character__job__level')->text());
-            $level = ($level == '--') ? 0 : intval($level);
+            $level = ($level === '-') ? 0 : (int) $level;
             $role->Level = $level;
 
             //specialist
@@ -73,24 +77,24 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
 
             $classjobs[] = $role;
         }
-    
+
         $elementalIndex = 1;
-    
+
         /** @var DomQuery $node */
-    
+
         //
         // Bozjan Southern Front
         //
-        $bozjan          = new ClassJobBozjan('Resistance Rank');
+        $bozjan          = new ClassJobBozjan(Translator::translate($locale, 'Resistance Rank'));
         $node            = $this->dom->find('.character__job__list')[0];
         $fieldname       = trim($node->find('.character__job__name')->text());
-        
+
         // if elemental level is the 1st one, they haven't started Bozjan
-        if ($fieldname == 'Elemental Level') {
+        if ($fieldname === Translator::translate($locale, 'Elemental Level')) {
             $elementalIndex = 0;
         } else {
             $bozjanString    = trim($node->find('.character__job__exp')->text());
-            
+
             if ($bozjanString) {
                 [$current, $max] = explode('/', $bozjanString);
                 $current         = filter_var(trim(str_ireplace('-', null, $current)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
@@ -98,8 +102,8 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
                 if ($current == "") {
                     $current = null;
                 }
-                
-    
+
+
                 $bozjan->Level        = (int)$node->find('.character__job__level')->text();
                 $bozjan->Mettle       = $current;
             }
@@ -108,23 +112,23 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
         //
         // The Forbidden Land, Eureka
         //
-        $elemental       = new ClassJobEureka('Elemental Level');
+        $elemental       = new ClassJobEureka(Translator::translate($locale, 'Elemental Level'));
         $node            = $this->dom->find('.character__job__list')[$elementalIndex];
-        
+
         $eurekaString    = explode('/', $node->find('.character__job__exp')->text());
         $current         = $eurekaString[0] ?? null;
         $max             = $eurekaString[1] ?? null;
-        
+
         $current         = filter_var(trim(str_ireplace('-', null, $current)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
         $max             = filter_var(trim(str_ireplace('-', null, $max)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
-        
+
         $elemental->Level        = (int)$node->find('.character__job__level')->text();
         $elemental->ExpLevel     = $current;
         $elemental->ExpLevelMax  = $max;
         $elemental->ExpLevelTogo = $max - $current;
-        
+
         // fin
-        
+
         unset($box);
         unset($node);
 

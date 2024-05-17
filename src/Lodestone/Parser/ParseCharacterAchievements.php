@@ -14,10 +14,10 @@ class ParseCharacterAchievements extends ParseAbstract implements Parser
     /**
      * @throws LodestonePrivateException
      */
-    public function handle(string $html)
+    public function handle(string $htmlContent)
     {
         // set dom
-        $this->setDom($html);
+        $this->setDom($htmlContent);
         $achievements = new Achievements();
 
         /** @var DomQuery $a */

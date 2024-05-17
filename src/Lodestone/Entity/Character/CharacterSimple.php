@@ -6,12 +6,12 @@ use Lodestone\Entity\AbstractEntity;
 
 class CharacterSimple extends AbstractEntity
 {
-    public $ID;
-    public $Name;
-    public $Lang;
-    public $Server;
-    public $Avatar;
-    public $Rank;
-    public $RankIcon;
-    public $FeastMatches = 0;
+    public string $ID;
+    public string $Name;
+    public string $Lang;
+    public string $Server;
+    public string $Avatar;
+    public string $Rank;
+    public string $RankIcon;
+    public int $FeastMatches = 0;
 }

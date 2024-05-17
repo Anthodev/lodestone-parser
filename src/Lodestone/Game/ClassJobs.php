@@ -2,11 +2,13 @@
 
 namespace Lodestone\Game;
 
+use Lodestone\Enum\LocaleEnum;
+
 class ClassJobs
 {
     // pull from: https://xivapi.com/classjob?columns=ID,Name
-
-    const ROLES = [
+    /** @var array<int, string> */
+    const array ROLES = [
         0 => 'adventurer',
         1 => 'gladiator',
         2 => 'pugilist',
@@ -47,7 +49,7 @@ class ClassJobs
         37 => 'gunbreaker',
         38 => 'dancer',
         39 => 'reaper',
-        40 => 'sage'
+        40 => 'sage',
     ];
 
     /**
@@ -99,21 +101,35 @@ class ClassJobs
         39 => [ 39, 39, ],
         40 => [ 40, 40, ],
     ];
-    
-    public static function findGameData($name)
-    {
-        [$ClassID, $JobID] = self::findClassJob($name);
-        
-        $className = self::ROLES[$ClassID];
-        $jobName   = self::ROLES[$JobID] ?? null;
-        
-        return (Object)[
+
+    public static function findGameData(
+        string $name,
+        string $locale,
+    ): object {
+        [$ClassID, $JobID] = self::findClassJob($name, $locale);
+
+        $className = match ($locale) {
+            LocaleEnum::FR->value => ClassJobsFrench::ROLES[$ClassID],
+            LocaleEnum::DE->value => ClassJobsGerman::ROLES[$ClassID],
+            LocaleEnum::JA->value => ClassJobsJapanese::ROLES[$ClassID],
+            default => self::ROLES[$ClassID],
+        };
+
+        $jobName = match ($locale) {
+            LocaleEnum::EN->value => self::ROLES[$JobID],
+            LocaleEnum::FR->value => ClassJobsFrench::ROLES[$JobID],
+            LocaleEnum::DE->value => ClassJobsGerman::ROLES[$JobID],
+            LocaleEnum::JA->value => ClassJobsJapanese::ROLES[$JobID],
+            default => null,
+        };
+
+        return (object)[
             'Name'    => "{$className} / {$jobName}",
             'ClassID' => self::CLASS_JOB_LINKS[$ClassID][0],
             'JobID'   => self::CLASS_JOB_LINKS[$JobID][1] ?? null
         ];
     }
-    
+
     /**
      * Provides the correct role ID for a given role name, this
      * separates job/class.
@@ -122,41 +138,55 @@ class ClassJobs
     {
         $name = strtolower($name);
         $array = array_flip(self::ROLES);
-        
+
         return $array[$name] ?? null;
     }
-    
+
     /**
      * Find class/job in the json data
      *
-     * @param $name
      * @return bool|object
      */
-    private static function findClassJob($name)
-    {
+    private static function findClassJob(
+        string $name,
+        string $locale,
+    ): false|array {
         foreach(self::CLASS_JOB_LINKS as $classjob) {
             [$ClassID, $JobID] = $classjob;
-            
-            $className = self::ROLES[$ClassID] ?? null;
-            $jobName   = self::ROLES[$JobID] ?? null;
-            
+
+            $className = match ($locale) {
+                LocaleEnum::EN->value => self::ROLES[$ClassID],
+                LocaleEnum::FR->value => ClassJobsFrench::ROLES[$ClassID],
+                LocaleEnum::DE->value => ClassJobsGerman::ROLES[$ClassID],
+                LocaleEnum::JA->value => ClassJobsJapanese::ROLES[$ClassID],
+                default => null,
+            };
+
+            $jobName = match ($locale) {
+                LocaleEnum::EN->value => self::ROLES[$JobID],
+                LocaleEnum::FR->value => ClassJobsFrench::ROLES[$JobID],
+                LocaleEnum::DE->value => ClassJobsGerman::ROLES[$JobID],
+                LocaleEnum::JA->value => ClassJobsJapanese::ROLES[$JobID],
+                default => null,
+            };
+
             if (
-                ($className && self::minifyname($name) == self::minifyname($className)) ||
-                ($jobName && self::minifyname($name) == self::minifyname($jobName))
+                ($className && self::minifyName($name) === self::minifyName($className)) ||
+                ($jobName && self::minifyName($name) === self::minifyName($jobName))
             ) {
                 return $classjob;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * @param $name
      * @return string
      */
-    private static function minifyname($name)
+    private static function minifyName($name): string
     {
-        return trim(strtolower(str_ireplace(' ', null, $name)));
+        return mb_strtolower(trim(str_ireplace(" ", null, $name)), 'UTF-8');
     }
 }

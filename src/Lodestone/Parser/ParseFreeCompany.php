@@ -9,10 +9,10 @@ class ParseFreeCompany extends ParseAbstract implements Parser
 {
     use HelpersTrait;
 
-    public function handle(string $html)
+    public function handle(string $htmlContent)
     {
         // set dom
-        $this->setDom($html);
+        $this->setDom($htmlContent);
 
         $fc = new FreeCompany();
 
@@ -23,7 +23,7 @@ class ParseFreeCompany extends ParseAbstract implements Parser
         foreach ($this->dom->find('.entry__freecompany__crest__image img') as $img) {
             $fc->Crest[] = str_ireplace('64x64', '128x128', $img->attr('src'));
         }
-        
+
         [$server, $dc] = $this->getServerAndDc(
             $this->dom->find('.entry__freecompany__gc')->eq(1)->text()
         );
@@ -48,7 +48,7 @@ class ParseFreeCompany extends ParseAbstract implements Parser
         $fc->Estate             = [
             'Name'     => $this->dom->find('.freecompany__estate__name')->text(),
             'Plot'     => $this->dom->find('.freecompany__estate__text')->text(),
-            'Greeting' => $this->dom->find('.freecompany__estate__greeting')->text(),
+            'Greeting' => str_replace("\"", '', $this->dom->find('.freecompany__estate__greeting')->text()),
         ];
 
         /** @var DomQuery $rep */

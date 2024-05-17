@@ -14,7 +14,7 @@
         }
     ],
     "require": {
-        "php": "^8.1",
+        "php": "^8.3",
         "symfony/css-selector": ">=3.2",
         "nesbot/carbon": "^3.3",
         "symfony/http-client": "^6.4",
@@ -26,7 +26,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Lodestone\\": "src/Lodestone"
+            "Lodestone\\": "src/Lodestone",
+            "LodestoneUtils\\": "src/Utils"
         }
     },
     "autoload-dev": {
